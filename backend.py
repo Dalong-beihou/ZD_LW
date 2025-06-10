@@ -3,11 +3,32 @@ import json
 import os
 import datetime
 import sys
+import subprocess  # 新增导入
 from wifi_utils import is_connected, connect_to_wifi
 from plyer import notification
 from PIL import Image
 import pystray
 from threading import Thread
+
+# ====== 隐藏子进程窗口的函数（仅 Windows）======
+def hide_subprocess_window():
+    if sys.platform != 'win32':
+        return
+
+    original_popen = subprocess.Popen
+
+    class HiddenWindowPopen(original_popen):
+        def __init__(self, *args, **kwargs):
+            kwargs['creationflags'] = kwargs.get(
+                'creationflags', subprocess.CREATE_NO_WINDOW
+            )
+            super().__init__(*args, **kwargs)
+
+    subprocess.Popen = HiddenWindowPopen
+
+# 在程序开始时立即调用
+hide_subprocess_window()
+# ====== 隐藏窗口功能结束 ======
 
 CONFIG_FILE = "user_settings.json"
 PROFILE_FILE = "wifi_profiles.json"
